@@ -68,7 +68,7 @@
 			return;
 
 		// TODO: remove this once this is implemented
-		if (nz <= 1.0) {
+		if (nz < 0.0) {
 			nz_warning.style.display = "block";
 			return;
 		} else {
@@ -154,7 +154,7 @@
 
 				<div id="nz-warning" style="display: none" class="alert alert-warning" role="alert">
 					<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-					The case where the <i>z</i> component is less than or equal to 1 has not been implemented yet.
+					The case where the <i>z</i> component is less than 0 has not been implemented yet.
 				</div>
 
 				<div id="normalise-warning" style="display: none" class="alert alert-danger" role="alert">
