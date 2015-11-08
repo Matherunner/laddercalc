@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Ladder Calculator</title>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+	<style type="text/css">
+	.container {
+		max-width: 700px;
+	}
+	</style>
+	<script type="text/javascript">
+	var EQ_EPSILON = 1e-6;
+	var PRECISION = 6;
+
+	function showNormalError(val, id) {
+		var col = document.getElementById(id);
+		if (isNaN(val)) {
+			col.classList.add("has-error");
+			return false;
+		} else {
+			col.classList.remove("has-error");
+			return true;
+		}
+	}
+
+	function getSign(name, posname) {
+		var radiobtns = document.getElementsByName(name);
+		for (var i = 0; i < radiobtns.length; i++) {
+			if (radiobtns[i].checked) {
+				if (radiobtns[i].value === posname)
+					return 1.0;
+				else
+					return -1.0;
+			}
+		}
+		return 1.0;
+	}
+
+	function normalChange(e) {
+		var nx_text = e.form.nx.value;
+		var ny_text = e.form.ny.value;
+		var nz_text = e.form.nz.value;
+
+		var warning = document.getElementById("normalise-warning");
+		var nz_warning = document.getElementById("nz-warning");
+		var normal_group = document.getElementById("normal-group");
+		
+		if (!nx_text || !ny_text || !nz_text) {
+			warning.style.display = "none";
+			nz_warning.style.display = "none";
+			normal_group.classList.remove("has-error");
+			return;
+		}
+
+		var nx = parseFloat(nx_text);
+		if (!showNormalError(nx, "nx-col"))
+			return;
+
+		var ny = parseFloat(ny_text);
+		if (!showNormalError(ny, "ny-col"))
+			return;
+
+		var nz = parseFloat(nz_text);
+		if (!showNormalError(nz, "nz-col"))
+			return;
+
+		// TODO: remove this once this is implemented
+		if (nz <= 1.0) {
+			nz_warning.style.display = "block";
+			return;
+		} else {
+			nz_warning.style.display = "none";
+		}
+
+		var norm3dsq = nx * nx + ny * ny + nz * nz;
+		if (norm3dsq <= 1 - EQ_EPSILON || norm3dsq >= 1 + EQ_EPSILON) {
+			warning.style.display = "block";
+			normal_group.classList.add("has-error");
+		} else {
+			warning.style.display = "none";
+			normal_group.classList.remove("has-error");
+		}
+
+		var climbdir = getSign("climbdir", "up");
+		var leftright = getSign("leftright", "right");
+		var forwardback = getSign("forwardback", "forward");
+		var nzfactor = nz < Math.sqrt(0.5) ? 1.0 : -1.0;
+
+		var tmp = Math.sqrt(2 * nz * Math.sqrt(nx * nx + ny * ny));
+		var yaw = Math.atan2(ny, nx) + Math.atan2(-leftright * climbdir, -forwardback * climbdir * tmp);
+		var pitch = -forwardback * climbdir * nzfactor * Math.acos(tmp);
+
+		yaw *= 180 / Math.PI;
+		pitch *= 180 / Math.PI;
+
+		e.form.yaw.value = yaw.toFixed(PRECISION);
+		e.form.pitch.value = pitch.toFixed(PRECISION);
+	}
+	</script>
+</head>
+<body>
+	<div class="container">
+		<h1>Ladder Viewangles Calculator</h1>
+		<p>Every speedrunner knows how to climb a standard vertical ladder with the maximum possible speed. When faced with a slanted ladder, however, it may not be obvious what the optimal viewangles are. This calculator is the answer. If you want to understand how all of these work, have a look at <a href="http://tastools.readthedocs.org/en/latest/ladderphy.html#ladder-physics">this article</a>.</p>
+
+		<form>
+			<div class="form-group">
+				<label>Climb up or climb down?</label>
+				<label class="checkbox-inline">
+					<input type="radio" name="climbdir" value="up" checked="checked" onchange="normalChange(this);"> climb up
+				</label>
+				<label class="checkbox-inline">
+					<input type="radio" name="climbdir" value="down" onchange="normalChange(this);"> climb down
+				</label>
+			</div>
+			
+			<div class="form-group">
+				<label>Moveright or moveleft?</label>
+				<label class="checkbox-inline">
+					<input type="radio" name="leftright" value="right" checked="checked" onchange="normalChange(this);"> moveright
+				</label>
+				<label class="checkbox-inline">
+					<input type="radio" name="leftright" value="left" onchange="normalChange(this);"> moveleft
+				</label>
+			</div>
+
+			<div class="form-group">
+				<label>Forward or backward?</label>
+				<label class="checkbox-inline">
+					<input type="radio" name="forwardback" value="forward" checked="checked" onchange="normalChange(this);"> forward
+				</label>
+				<label class="checkbox-inline">
+					<input type="radio" name="forwardback" value="back" onchange="normalChange(this);"> back
+				</label>
+			</div>
+
+			<div id="normal-group" class="form-group">
+				<label>Ladder normal</label>
+
+				<div class="row" style="margin-bottom: 15px">
+					<div id="nx-col" class="col-md-4">
+						<input type="text" name="nx" class="form-control" placeholder="normal x" oninput="normalChange(this);">
+					</div>
+					<div id="ny-col" class="col-md-4">
+						<input type="text" name="ny" class="form-control" placeholder="normal y" oninput="normalChange(this);">
+					</div>
+					<div id="nz-col" class="col-md-4">
+						<input type="text" name="nz" class="form-control" placeholder="normal z" oninput="normalChange(this);">
+					</div>
+				</div>
+
+				<div id="nz-warning" style="display: none" class="alert alert-warning" role="alert">
+					<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+					The case where the <i>z</i> component is less than or equal to 1 has not been implemented yet.
+				</div>
+
+				<div id="normalise-warning" style="display: none" class="alert alert-danger" role="alert">
+					<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+					The normal vector should be normalised.
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label>Yaw</label>
+				<input type="text" name="yaw" class="form-control" placeholder="Yaw in degrees" readonly="readonly">
+			</div>
+
+			<div class="form-group">
+				<label>Pitch</label>
+				<input type="text" name="pitch" class="form-control" placeholder="Pitch in degrees" readonly="readonly">
+			</div>
+		</form>
+	</div>
+</body>
+</html>
