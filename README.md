@@ -1,6 +1,6 @@
 # Ladder viewangles calculator
 
-URL to the calculator: [here](https://matherunner.github.io/laddercalc/calc.html)
+URL to the calculator: [here](https://matherunner.github.io/laddercalc/)
 
 Almost everyone knows the standard trick to maximising ladder climbing speed. However, it is not obvious what the optimal viewangles for climbing slanted ladders are. Even though slanted ladders are extremely rare in vanilla Half-Life games, it can appear in mods or custom maps.
 
