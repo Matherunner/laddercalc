@@ -75,13 +75,22 @@
 			nz_warning.style.display = "none";
 		}
 
+		var autonorm = e.form.autonorm.checked;
+
 		var norm3dsq = nx * nx + ny * ny + nz * nz;
-		if (norm3dsq <= 1 - EQ_EPSILON || norm3dsq >= 1 + EQ_EPSILON) {
+		if (!autonorm && (norm3dsq <= 1 - EQ_EPSILON || norm3dsq >= 1 + EQ_EPSILON)) {
 			warning.style.display = "block";
 			normal_group.classList.add("has-error");
 		} else {
 			warning.style.display = "none";
 			normal_group.classList.remove("has-error");
+		}
+
+		if (autonorm) {
+			var invlength = 1 / Math.sqrt(nx * nx + ny * ny + nz * nz);
+			nx *= invlength;
+			ny *= invlength;
+			nz *= invlength;
 		}
 
 		var climbdir = getSign("climbdir", "up");
@@ -151,16 +160,22 @@
 						<input type="text" name="nz" class="form-control" placeholder="normal z" oninput="normalChange(this);">
 					</div>
 				</div>
+			</div>
 
-				<div id="nz-warning" style="display: none" class="alert alert-warning" role="alert">
-					<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-					The case where the <i>z</i> component is less than 0 has not been implemented yet.
-				</div>
+			<div class="checkbox">
+				<label>
+					<input name="autonorm" type="checkbox" onchange="normalChange(this);"> Normalise automatically
+				</label>
+			</div>
 
-				<div id="normalise-warning" style="display: none" class="alert alert-danger" role="alert">
-					<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-					The normal vector should be normalised.
-				</div>
+			<div id="nz-warning" style="display: none" class="alert alert-warning" role="alert">
+				<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+				The case where the <i>z</i> component is less than 0 has not been implemented yet.
+			</div>
+
+			<div id="normalise-warning" style="display: none" class="alert alert-danger" role="alert">
+				<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+				The normal vector should be normalised.
 			</div>
 
 			<div class="form-group">
